@@ -4,7 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 
 
 # Serializer for user registration
-class RegisterSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
@@ -43,7 +43,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
 # Serializer for user profile
 class ProfileSerializer(serializers.ModelSerializer):
-
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Profile
         fields = ["id", "user", "name", "profile_image"]

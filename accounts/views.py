@@ -1,6 +1,6 @@
 from rest_framework import generics, views, status
 from .models import CustomUser, Profile
-from .serializers import RegisterSerializer , ProfileSerializer , EmailSerializer , PasswordChangeSerializer
+from .serializers import UserSerializer , ProfileSerializer , EmailSerializer , PasswordChangeSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 
 # User registration endpoint
 class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
+    serializer_class = UserSerializer
     permission_classes = [AllowAny]
     queryset = CustomUser.objects.all()
 
@@ -109,4 +109,4 @@ class ProfileUpdateView(generics.UpdateAPIView):
     serializer_class = ProfileSerializer
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        return Profile.objects.select_related("user").get(user=self.request.user)

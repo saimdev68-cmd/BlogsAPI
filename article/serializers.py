@@ -21,29 +21,6 @@ class ArticleSerializer(serializers.ModelSerializer):
                 "likes_count",
                 "comments_count"
                 ]
-
-class ArticleAdminSerializer(serializers.ModelSerializer):
-    likes_count = serializers.IntegerField(read_only=True)
-    comments_count = serializers.IntegerField(read_only=True)
-    bookmark_count = serializers.IntegerField(read_only=True)
-    class Meta:
-        model = Article
-        fields = ["id",
-                "category",
-                "title",
-                "description",
-                "cover_image",
-                "read_min",
-                "is_published",
-                "published_at",
-                "is_top",
-                "is_trending",
-                "bookmark",
-                "likes",
-                "likes_count",
-                "comments_count",
-                "bookmark_count"
-                ]
     
 class ParagraphSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,8 +34,17 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ["profile"]
 
     def validate(self, attrs):
-        profile = self.context.get("request").user.profile
+        profile = self.context["request"].user.profile
         article = attrs.get("article")
-        if Comment.objects.filter(article=article,profile=profile).exists():
-            raise serializers.ValidationError("You Already comment on this article")
+        queryset = Comment.objects.filter(
+            article=article,
+            profile=profile
+        )
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError(
+                "You already commented on this article"
+            )
         return attrs
+    
